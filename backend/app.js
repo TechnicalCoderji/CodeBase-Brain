@@ -8,9 +8,19 @@ const cors = require("cors");
 const app = express();
 const PORT = process.env.PORT || 3001;
 
+const cors = require("cors");
+
 app.use(cors({
-  origin: "*"
+  origin: [
+    "http://localhost:5173",
+    "https://codebasebrain.netlify.app"
+  ],
+  methods: ["GET", "POST", "OPTIONS"],
+  allowedHeaders: ["Content-Type"],
 }));
+
+// Handle preflight requests (VERY IMPORTANT)
+app.options("*", cors());
 
 app.use(express.json());
 app.use(analyzeRouter);
