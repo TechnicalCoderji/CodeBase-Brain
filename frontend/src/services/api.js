@@ -1,4 +1,4 @@
-const BASE_URL = '';
+const BASE_URL = 'https://codebase-brain.onrender.com';
 
 async function post(endpoint, body) {
   const res = await fetch(`${BASE_URL}${endpoint}`, {

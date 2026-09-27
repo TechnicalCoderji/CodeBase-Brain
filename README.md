@@ -30,17 +30,17 @@ CodeBase Brain is an AI-powered platform that lets developers analyze, understan
 
 ## 📸 Screenshots
 
-> _Screenshots coming soon._
-
-<!-- Replace the lines below with actual screenshot images -->
-
 | Landing Page | Repository Analysis |
 |---|---|
-| ![Landing Page](screenshots/landing.png) | ![Analysis](screenshots/analysis.png) |
+| ![Landing Page](preview/preview01.png) | ![Analysis](preview/preview02.png) |
 
-| Chat with Codebase | Documentation Generator |
+| Chat with Codebase | OnBoard |
 |---|---|
-| ![Chat](screenshots/chat.png) | ![Docs](screenshots/docs.png) |
+| ![Chat](preview/preview03.png) | ![Onboard](preview/preview04.png) |
+
+| Documentation Generator |
+|---|
+| ![Documentation](preview/preview05.png) |
 
 ---
 
@@ -180,6 +180,8 @@ codebase-brain/
 │   │   ├── services/         # API call helpers
 │   │   └── App.jsx
 │   └── vite.config.js
+│
+├── preview/                  # Images for preview in README.md
 │
 └── README.md
 ```
