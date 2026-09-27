@@ -46,7 +46,7 @@ CodeBase Brain is an AI-powered platform that lets developers analyze, understan
 
 ## 🌐 Demo
 
-**Live Demo:** [https://your-deployed-link.com](https://your-deployed-link.com)
+**Live Demo:** [https://your-deployed-link.com](https://codebasebrain.netlify.app/)
 
 > _Replace the link above with your deployed application URL._
 
