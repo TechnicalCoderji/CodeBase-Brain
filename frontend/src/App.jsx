@@ -1,63 +1,135 @@
 import React, { useState } from 'react';
-import InputPanel from './components/InputPanel';
-import ResultCard from './components/ResultCard';
 import { api } from './services/api';
+import LandingPage from './pages/LandingPage';
+import Sidebar from './components/Sidebar';
+import AnalyzeView from './pages/AnalyzeView';
+import ChatView from './pages/ChatView';
+import OnboardView from './pages/OnboardView';
+import DocsView from './pages/DocsView';
 
 export default function App() {
-  const [repoUrl, setRepoUrl] = useState('');
-  const [question, setQuestion] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [results, setResults] = useState([]); // [{ type, data, error }]
+  const [showLanding, setShowLanding] = useState(true);
+  const [darkMode,    setDarkMode]    = useState(false);
+  const [repoUrl,     setRepoUrl]     = useState('');
+  const [activeView,  setActiveView]  = useState('analyze');
 
-  async function handleAction(action) {
-    setLoading(true);
+  // Per-view state
+  const [analyzeData,  setAnalyzeData]  = useState(null);
+  const [analyzeErr,   setAnalyzeErr]   = useState(null);
+  const [analyzeLoad,  setAnalyzeLoad]  = useState(false);
 
+  const [onboardData,  setOnboardData]  = useState(null);
+  const [onboardErr,   setOnboardErr]   = useState(null);
+  const [onboardLoad,  setOnboardLoad]  = useState(false);
+
+  const [docsData,     setDocsData]     = useState(null);
+  const [docsErr,      setDocsErr]      = useState(null);
+  const [docsLoad,     setDocsLoad]     = useState(false);
+
+  async function handleAnalyze() {
+    if (!repoUrl) return;
+    setActiveView('analyze');
+    setAnalyzeLoad(true);
+    setAnalyzeErr(null);
     try {
-      let data;
-
-      if (action === 'analyze') data = await api.analyze(repoUrl);
-      else if (action === 'ask') data = await api.ask(repoUrl, question);
-      else if (action === 'onboard') data = await api.onboard(repoUrl);
-      else if (action === 'generateDoc') data = await api.generateDoc(repoUrl);
-
-      setResults((prev) => [{ type: action, data, error: null }, ...prev]);
-    } catch (err) {
-      setResults((prev) => [{ type: action, data: null, error: err.message }, ...prev]);
+      const data = await api.analyze(repoUrl);
+      setAnalyzeData(data);
+    } catch (e) {
+      setAnalyzeErr(e.message);
     } finally {
-      setLoading(false);
+      setAnalyzeLoad(false);
     }
   }
 
-  return (
-    <div className="app">
-      <header className="app-header">
-        <h1>CodeBase Brain</h1>
-        <p>Analyze, understand, and document any GitHub repository with AI.</p>
-      </header>
+  async function handleOnboard() {
+    if (!repoUrl) return;
+    setOnboardLoad(true);
+    setOnboardErr(null);
+    try {
+      const data = await api.onboard(repoUrl);
+      setOnboardData(data);
+    } catch (e) {
+      setOnboardErr(e.message);
+    } finally {
+      setOnboardLoad(false);
+    }
+  }
 
-      <InputPanel
+  async function handleGenerateDoc() {
+    if (!repoUrl) return;
+    setDocsLoad(true);
+    setDocsErr(null);
+    try {
+      const data = await api.generateDoc(repoUrl);
+      setDocsData(data);
+    } catch (e) {
+      setDocsErr(e.message);
+    } finally {
+      setDocsLoad(false);
+    }
+  }
+
+  if (showLanding) {
+    return (
+      <div className={darkMode ? 'dark' : ''}>
+        <LandingPage onStart={() => setShowLanding(false)} />
+      </div>
+    );
+  }
+
+  const viewProps = {
+    analyze: (
+      <AnalyzeView
+        data={analyzeData}
+        error={analyzeErr}
+        loading={analyzeLoad}
+        repoUrl={repoUrl}
+        onAnalyze={handleAnalyze}
+      />
+    ),
+    chat: (
+      <ChatView
+        repoUrl={repoUrl}
+        onAsk={(url, q) => api.ask(url, q)}
+      />
+    ),
+    onboard: (
+      <OnboardView
+        data={onboardData}
+        error={onboardErr}
+        loading={onboardLoad}
+        repoUrl={repoUrl}
+        onOnboard={handleOnboard}
+      />
+    ),
+    docs: (
+      <DocsView
+        data={docsData}
+        error={docsErr}
+        loading={docsLoad}
+        repoUrl={repoUrl}
+        onGenerateDoc={handleGenerateDoc}
+      />
+    ),
+  };
+
+  return (
+    <div className={`dashboard${darkMode ? ' dark' : ''}`}>
+      <Sidebar
         repoUrl={repoUrl}
         setRepoUrl={setRepoUrl}
-        question={question}
-        setQuestion={setQuestion}
-        onAction={handleAction}
-        loading={loading}
+        activeView={activeView}
+        onView={setActiveView}
+        loading={analyzeLoad || onboardLoad || docsLoad}
+        darkMode={darkMode}
+        onToggleDark={() => setDarkMode((v) => !v)}
       />
-
-      {loading && (
-        <div className="loader">
-          <div className="spinner" />
-          Processing…
+      <main className="main-content">
+        <div className="main-view fade-in" key={activeView}>
+          {viewProps[activeView]}
         </div>
-      )}
-
-      {results.length > 0 && (
-        <div className="results">
-          {results.map((r, i) => (
-            <ResultCard key={i} type={r.type} data={r.data} error={r.error} />
-          ))}
-        </div>
-      )}
+        <div className="watermark">CodeBase Brain</div>
+      </main>
     </div>
   );
 }
